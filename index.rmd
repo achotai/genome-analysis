@@ -1,0 +1,12 @@
+---
+title: "index"
+author: "Ayushi Chotai"
+date: "2/26/2020"
+output: html_document
+---
+This is 
+[lab5](lab5_ayushichotai.html)
+
+```{r}
+
+```
