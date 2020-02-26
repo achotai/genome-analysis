@@ -1,0 +1,171 @@
+---
+title: "lab 5"
+author: "Ayushi Chotai"
+date: "2/24/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r, include = FALSE}
+library(tidyverse)
+library(magrittr)
+library(dplyr)
+```
+
+
+```{r}
+ download.file(url="https://ndownloader.figshare.com/files/2292169",
+              destfile = "data/portal_data_joined.csv")
+```
+
+```{r setup, include = FALSE}
+surveys <- read_csv("data/portal_data_joined.csv")
+```
+
+
+```{r}
+SNPs <- read_tsv("data/23andMe_complete.txt", skip = 14, col_types = 
+  cols(chromosome = col_factor()))
+```
+
+### challenge 1
+```{r}
+surveys %>%
+    filter(year < 1995) %>%
+    select(year, sex, weight)
+```
+
+### challenge 2
+```{r}
+surveys %>%
+  filter(!is.na(hindfoot_length)) %>%
+  mutate(hindfoot_half = hindfoot_length / 2) %>%
+  filter(hindfoot_half < 30) %>%
+  select(species_id, hindfoot_half)
+```
+
+### challenge 3.1
+```{r}
+surveys %>%
+    count(plot_type) 
+```
+
+### challege 3.2
+```{r}
+surveys %>%
+    filter(!is.na(hindfoot_length)) %>%
+    group_by(species_id) %>%
+    summarize(
+        mean_hindfoot_length = mean(hindfoot_length),
+        min_hindfoot_length = min(hindfoot_length),
+        max_hindfoot_length = max(hindfoot_length),
+        n = n()
+    )
+```
+
+### challenge 3.3
+```{r}
+surveys %>%
+    filter(!is.na(weight)) %>%
+    group_by(year) %>%
+    filter(weight == max(weight)) %>%
+    select(year, genus, species, weight) %>%
+    arrange(year)
+```
+
+
+### challenge 4.1
+```{r}
+rich_time <- surveys %>%
+  group_by(plot_id, year) %>%
+  summarize(n_genera = n_distinct(genus)) %>%
+  spread(year, n_genera)
+head(rich_time)
+```
+
+### challenge 4.2
+```{r}
+rich_time %>%
+  gather(year, n_genera, -plot_id)
+```
+
+### challenge 4.3
+```{r}
+surveys_long <- surveys %>%
+  gather(measurement, value, hindfoot_length, weight)
+```
+
+### challenge 4.4
+```{r}
+surveys_long %>%
+  group_by(year, measurement, plot_type) %>%
+  summarize(mean_value = mean(value, na.rm=TRUE)) %>%
+  spread(measurement, mean_value)
+```
+
+### exercise 1
+```{r}
+SNPs %>%
+  select(position, genotype)
+```
+
+### exercise 2
+```{r}
+SNPs %>%
+  filter(chromosome =="MT") %>%
+  filter(genotype!="A") %>%
+  filter(genotype!="B")
+```
+
+### exercise 3
+```{r}
+SNPs %>%
+  group_by(chromosome) %>%
+  summarize(
+    min_chromosome_position = min(position),
+    max_chromosome_position = max(position),
+    count = n()
+  )
+```
+
+### exercise 4
+```{r}
+SNPs %>%
+  group_by(chromosome) %>% 
+  summarize(
+    min_position=min(position),
+    max_position=max(position),
+    count=n()
+    ) %>% 
+  mutate(density=count/(max_position-min_position))
+```
+
+### exercise 5
+```{r}
+SNPs %>%
+  group_by(chromosome) %>% 
+  summarize(
+    min_position=min(position),
+    max_position=max(position),
+    count=n()
+    ) %>%
+  mutate(density=count/(max_position-min_position)) %>% 
+  count(chromosome,density) %>% 
+  arrange(density)
+```
+
+### exercise 6
+```{r}
+SNPs<-SNPs %>% 
+  group_by(chromosome) %>% 
+  summarize(
+    min_position=min(position),
+    max_position=max(position),
+    count=n()
+    ) %>%
+  mutate(density=count/(max_position-min_position)) %>% 
+  count(chromosome,density) %>% 
+  arrange(density)
+write_csv(SNPs,path="data/lab5_exercise5")
+```
+

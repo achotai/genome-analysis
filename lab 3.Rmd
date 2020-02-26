@@ -1,0 +1,54 @@
+---
+title: "Lab 3"
+author: "Ayushi Chotai"
+date: "2/10/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+library(tidyverse)
+```
+
+### exercises
+
+### exercise 1
+```{r}
+SNPs<- read.table("23andMe_complete.txt", header = TRUE, sep = "\t")
+p<- ggplot(SNPs,aes(chromosome))+
+  geom_bar()
+p
+```
+
+### exercise 2
+```{r}
+SNPs$chromosome = ordered(SNPs$chromosome, levels=c(seq(1, 22), "X", "Y", "MT"))
+p<- ggplot(SNPs,aes(chromosome))+
+  geom_bar()
+p
+```
+
+### exercise 3
+```{r}
+ggplot(SNPs,aes(chromosome, fill = genotype))+
+  geom_bar(color = "black")
+```
+
+### exercise 4
+```{r}
+ggplot(SNPs,aes(chromosome, fill = genotype))+
+  geom_bar(position = "fill", color = "black")
+```
+
+### exercise 5
+```{r}
+ggplot(SNPs, aes(chromosome, fill = genotype))+
+  geom_bar(position = "dodge")
+```
+
+### exercise 6
+```{r}
+ggplot(SNPs, aes(chromosome, fill = genotype))+
+  geom_bar(position = "dodge")+ 
+  facet_wrap(~genotype)
+```

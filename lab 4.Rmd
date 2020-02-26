@@ -1,0 +1,77 @@
+---
+title: "Lab 4"
+author: "Ayushi Chotai"
+date: "2/12/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+```{r}
+library(tidyverse)
+library(plotly)
+library(DT)
+```
+
+### exercise 1
+```{r}
+SNPs<- read.table("23andMe_complete.txt", header = TRUE, sep = "\t")
+p<- ggplot(SNPs,aes(chromosome)) +
+  geom_bar(fill = "blue") +
+  ggtitle("Total SNPs for each chromosome") +
+  ylab("Total number of SNPs") +
+  xlab("chromosome")
+p
+```
+
+### exercise 2
+```{r}
+mycolor<-c("AA"="blue", "AC"="blue", "AG"="blue", "AT"="blue", "CC"="blue", "CG"="blue", "CT"="blue", "GG"="blue", "GT"="blue", "TT"="blue","A"="pink", "C"="pink", "G"="pink", "T"="pink", "D"="orange", "DD"="orange", "DI"="orange","I"="orange","II"="orange","--"="green")
+ggplot(SNPs, aes(chromosome, fill = genotype))+
+  geom_bar(color = "black")+
+  ggtitle("Total genotype count for each chromosome")+
+  ylab("Genotype count")+
+  xlab("Chromosome")+
+  scale_fill_manual(values=c(mycolor))
+```
+
+### exercise 3
+```{r}
+ppi <- 300
+png("ex3_plot.png", width=6*ppi, height=6*ppi, res=ppi)
+ggplot(data = SNPs, aes(chromosome, fill = genotype)) + 
+  geom_bar(position = "dodge")
+dev.off()
+```
+
+![Genotype counts per chromosome](ex3_plot.png) 
+
+### exercise 4
+```{r}
+SNPs$chromosome=ordered(SNPs$chromosome, levels=c(seq(1,22),"X","Y","MT"))
+ggplot(SNPs, aes(chromosome, fill = genotype))+
+  geom_bar(position = "dodge")+ 
+  facet_wrap(~genotype, ncol = 2)+
+  ggtitle("Genotype for Each Type of Chromosome")+
+  ylab("Genotype Count")+
+  xlab("Chromosome")
+```
+
+### exercise 5
+```{r}
+SNPs$chromosome=ordered(SNPs$chromosome, levels=c(seq(1,22),"X","Y","MT"))
+p <- ggplot(SNPs, aes(chromosome, fill = genotype))+
+  geom_bar(position = "dodge")+ 
+  facet_wrap(~genotype, ncol = 2)
+ggplotly(p)
+```
+
+### exercise 6
+```{r}
+chromosome_subset <- subset(SNPs, chromosome == "Y")
+datatable(chromosome_subset)
+```
+
+
+
+
+

@@ -1,0 +1,81 @@
+---
+title: "Lab2_ayushichotai"
+author: "Ayushi Chotai"
+date: "1/29/2020"
+output: html_document
+---
+
+### exercise 1
+```{r}
+x<- c (1, 3, 6, 9, 12)
+y<- c (1, 0, 1, 0, 1)
+
+x+y
+
+x-y
+
+x*y
+
+x/y
+```
+
+### exercise 2
+```{r}
+A<- c (0, 1, 2, 3)
+B<- c ("aa", "bb", "cc", "dd")
+C<- c ("aa", 1, "bb", 2)
+
+str(A)
+str(B)
+str(C)
+```
+
+### exercise 3
+```{r}
+
+genotype1<- c("AA", "AA", "AG", "GG", "GG")
+genotype2<- c("AA", "AA", "GG", "GG", "GG")
+A<- cbind(genotype1, genotype2)
+A
+
+table(genotype1)
+table(genotype2)
+```
+
+### exercise 4
+```{r}
+treatment1 <- c(0, 1, 2, 3, 4)
+treatment2 <- c(0, 2, 4, 6, 8)
+treatment3 <- c(0, 3, 6, 9, 12)
+times <- c(0, 2, 4, 6, 8)
+
+treatment <- data.frame(treatment1, treatment2, treatment3, row.names = times)
+treatment
+
+treatment$times <- c(0, 2, 4, 6, 8)
+treatment
+
+plot(treatment$treatment3, treatment$times)
+```
+
+### exercise 5
+```{r}
+SNP_table <- read.table("23andMe_complete.txt", header = TRUE, sep = "\t")
+
+str(SNP_table)
+```
+
+This chromosome is shown to be a factor.
+
+The truncated version shows that it is integers, meaning that it has no characters. However, in this file, there are characters present, implying that there is a mix between numbers and characters or it has only characters.
+
+### exercise 6
+```{r}
+table(SNP_table$genotype)
+```
+
+### exercise 7
+```{r}
+SNP_table_A <- subset(SNP_table, genotype == 'A')
+table(SNP_table_A$chromosome)
+```

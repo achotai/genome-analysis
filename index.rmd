@@ -3,10 +3,16 @@ title: "index"
 author: "Ayushi Chotai"
 date: "2/26/2020"
 output: html_document
+bibliography: data/references.bib
 ---
-This is 
-[lab5](lab5_ayushichotai.html)
+This is Ayushi's website!
 
-```{r}
+* [This is lab2](lab2.html)
+* [This is lab3](lab3_ayushichotai.html)
+* [This is lab4](lab4_ayushichotai.html)
+* [This is lab5](lab5_ayushichotai.html)
 
-```
+Application written in R [@RCoreTeam] using the Shiny framework [@Chang2015].
+
+# REFERENCES
+
