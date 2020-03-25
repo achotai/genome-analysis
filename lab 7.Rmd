@@ -1,0 +1,417 @@
+---
+title: "lab 7"
+author: "Ayushi Chotai"
+date: "3/4/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+### introduction
+
+Bioconductor file was installed.
+When downloading BiocManager, selected "a" to update and "no" for compilation.
+
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install(version = "3.10")
+```
+
+### preparing quantification input to DESeq2
+
+### reading in data with tximeta
+
+Airway package was downloaded
+The data used was stored in the airway package. 
+
+```{r}
+library("airway")
+```
+
+In this directory, we will find files. Here, we are asking for it to find the external data files that are part of the "airway" package.
+
+```{r}
+dir <- system.file("extdata", package="airway", mustWork=TRUE)
+```
+
+This function simply lists the files in the "quants" directory.
+
+```{r}
+list.files(dir)
+list.files(file.path(dir, "quants"))
+```
+
+CSV files are comma-separated files. This can be made by using a texteditor or spreadsheets. 
+
+```{r}
+csvfile <- file.path(dir, "sample_table.csv")
+coldata <- read.csv(csvfile, row.names=1, stringsAsFactors=FALSE)
+coldata
+```
+
+Here, we are creating 2 columns "names" and "files".
+
+```{r}
+coldata <- coldata[1:2,]
+coldata$names <- coldata$Run
+coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
+file.exists(coldata$files)
+```
+
+```{r}
+library("tximeta")
+se <- tximeta(coldata)
+```
+
+Needed to make selection to create a working directory. it asked to use default (selection: 1), however, default did not exist. thus, it asked to create a working directory for BiocFileCache (selection: 1).
+
+The "dim" function helps us find the dimensions and "head" lets us see the first few rows of the data.
+
+```{r}
+dim(se)
+head(rownames(se))
+```
+
+The "summarizeToGene" function helps us summarize the data and make a correct transcript-to-gene mapping table. This happens automatically based on the metadata stored within the "se" object. 
+
+```{r}
+gse <- summarizeToGene(se)
+```
+
+Here, we check if the dimensions have been reduced and the name of the rows has been changed to "gene IDs".
+
+```{r}
+dim(gse)
+head(rownames(gse))
+```
+
+### summarized experiment
+```{r}
+par(mar=c(0,0,0,0))
+plot(1,1,xlim=c(0,100),ylim=c(0,100),bty="n",
+     type="n",xlab="",ylab="",xaxt="n",yaxt="n")
+polygon(c(45,90,90,45),c(5,5,70,70),col="pink",border=NA)
+polygon(c(45,90,90,45),c(68,68,70,70),col="pink3",border=NA)
+text(67.5,40,"assay(s)")
+text(67.5,35,'e.g. "counts", ...')
+polygon(c(10,40,40,10),c(5,5,70,70),col="skyblue",border=NA)
+polygon(c(10,40,40,10),c(68,68,70,70),col="skyblue3",border=NA)
+text(25,40,"rowRanges")
+polygon(c(45,90,90,45),c(75,75,95,95),col="palegreen",border=NA)
+polygon(c(45,47,47,45),c(75,75,95,95),col="palegreen3",border=NA)
+text(67.5,85,"colData")
+```
+
+Loading the full count matrix.
+
+```{r}
+data(gse)
+gse
+```
+
+Examining the counts of the first matrix and looking at the phenotypic data using "colData".
+
+```{r}
+assayNames(gse)
+head(assay(gse), 3)
+colSums(assay(gse))
+```
+
+Examing genetic data using "rowRanges".
+
+```{r}
+rowRanges(gse)
+```
+
+Examining the metadata about the sequences using "seqinfo".
+
+```{r}
+seqinfo(rowRanges(gse))
+```
+
+Viewing the dataframe containing information about sample names, donor IDs, and treatment conditions.
+
+```{r}
+colData(gse)
+```
+
+### the DESeqDataSet object, sample information and the design formula
+
+Here, we are converting the SummarizedExperiment objects into DESeqDataSet objects. We are also viewing each column on the SummarizedExperiment or DESeqDataSet using the function "$".
+
+```{r}
+gse$donor
+gse$condition
+```
+
+Here, we are renaming the variables from "gse$donor" to "gse$cell" and "gse$condition" to "gse$dex".
+
+```{r}
+gse$cell <- gse$donor
+gse$dex <- gse$condition
+```
+
+Now, we are renaming the levels, however, we need to ensure that the order does not change during the renaming. 
+
+```{r}
+levels(gse$dex)
+levels(gse$dex) <- c("untrt", "trt")
+```
+
+Releveling determines the method of variable coding and how contrasts are computed. 
+The sign of the coefficients for the 2 groups will be flipped in relation to the contrast with the 2 groups.
+
+```{r}
+library("magrittr")
+gse$dex %<>% relevel("untrt")
+gse$dex
+```
+
+### starting from SummarizedExperiment
+
+Salmon can map the fragments to the genes.
+
+```{r}
+round( colSums(assay(gse)) / 1e6, 1 )
+```
+
+Here, we are making a DESeqDataSet from a fully annotated SummarizedExperiment. This creates a starting point of the analysis.
+
+```{r}
+library("DESeq2")
+```
+
+Adding the design for analysis
+
+```{r}
+dds <- DESeqDataSet(gse, design = ~ cell + dex)
+```
+
+### starting from count matrices
+
+We make a DESeqDataSet with only a count matrix and a table of sample information. We use "assay" to see the actual data and "head" allows us to view the first few lines of the data. 
+
+```{r}
+countdata <- round(assays(gse)[["counts"]])
+head(countdata, 3)
+```
+
+Confirming that the columns of the count matrix match the rows of the sample info table.
+
+```{r}
+coldata <- colData(gse)
+```
+
+The "countdata" makes a table with the fragment counts.
+The "coldata" function makes a table with information about the samples.
+DESeqDataSet is made from the matrix of counts and the sample info table. 
+
+```{r}
+ddsMat <- DESeqDataSetFromMatrix(countData = countdata,
+                                 colData = coldata,
+                                 design = ~ cell + dex)
+```
+
+### exploratory analysis and visualization
+
+### pre-filtering the dataset
+
+Deleting rows that have little to no information about the amount of gene expression. 
+
+```{r}
+nrow(dds)
+keep <- rowSums(counts(dds)) > 1
+dds <- dds[keep,]
+nrow(dds)
+```
+
+Keeping samples with at least 3 samples with a count of 10 or higher. 
+
+```{r}
+keep <- rowSums(counts(dds) >= 10) >= 3
+```
+
+### the variance stabilizing transformation and the rlog
+
+Now, we are plotting the standard deviation of each gene (row) against the average (mean).
+
+```{r}
+lambda <- 10^seq(from = -1, to = 2, length = 1000)
+cts <- matrix(rpois(1000*100, lambda), ncol = 100)
+library("vsn")
+meanSdPlot(cts, ranks = FALSE)
+```
+
+Plotting the standard deviation of each gene (row) against the average (mean) using the log counts. This will amplify the differences when values are near 0. 
+
+```{r}
+log.cts.one <- log2(cts + 1)
+meanSdPlot(log.cts.one, ranks = FALSE)
+```
+
+The 2 transformations offered stabalize the variance across the mean. 
+One of the transformations is VST, short for variance stabilizing transformation. The second is rlog, short for regularized-logarithm. 
+
+For large datasets, VST is faster. 
+
+```{r}
+vsd <- vst(dds, blind = FALSE)
+head(assay(vsd), 3)
+colData(vsd)
+```
+
+rlog method
+blind = FALSE shows the differences found between the cell lines. Treatments will not affect the trend. 
+
+```{r}
+rld <- rlog(dds, blind = FALSE)
+head(assay(rld), 3)
+```
+
+To show the effects of the transformation, we plot the first sample against the second. First we use the log2 function (don't forget to add 1 to avoid the log of 0). Then we use the VST and rlog-transformed values. For log2 method, we need to specify normalized = TRUE. 
+
+The scatterplot shows the transformed counts from the two samples. 
+
+From the scatterplot, we can observe that the VST and rlog combine differences for low gene counts that do not give us a lot of information about the differential expression. 
+
+```{r}
+library("dplyr")
+library("ggplot2")
+```
+
+```{r}
+dds <- estimateSizeFactors(dds)
+
+df <- bind_rows(
+  as_data_frame(log2(counts(dds, normalized=TRUE)[, 1:2]+1)) %>%
+         mutate(transformation = "log2(x + 1)"),
+  as_data_frame(assay(vsd)[, 1:2]) %>% mutate(transformation = "vst"),
+  as_data_frame(assay(rld)[, 1:2]) %>% mutate(transformation = "rlog"))
+  
+colnames(df)[1:2] <- c("x", "y")  
+
+ggplot(df, aes(x = x, y = y)) + geom_hex(bins = 80) +
+  coord_fixed() + facet_grid( . ~ transformation)  
+```
+
+### sample distances
+
+Using the "dist" function to find the Euclidean distance between the samples. 
+Here, we need to use VST. 
+We need to transpose (switch) the matrix values using t. Samples in rows and genes in columns. 
+
+```{r}
+sampleDists <- dist(t(assay(vsd)))
+sampleDists
+```
+
+Visualizing the distances in a heatmap using the "pheatmap" function.
+
+```{r}
+library("pheatmap")
+library("RColorBrewer")
+```
+
+"sampleDists" and "clustering_distance" functions were used to plot the sample matrix with the rows/columns. We also specified for the plot to have a blue color palette. The row name was changed such that it has treatment type and patient numbers.
+
+```{r}
+sampleDistMatrix <- as.matrix( sampleDists )
+rownames(sampleDistMatrix) <- paste( vsd$dex, vsd$cell, sep = " - " )
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows = sampleDists,
+         clustering_distance_cols = sampleDists,
+         col = colors)
+```
+
+PoiClaClu to calculate sample distances.
+This uses the original count matrix with samples as rows. Thus we need to switch the counts using "dds".
+
+```{r}
+library("PoiClaClu")
+poisd <- PoissonDistance(t(counts(dds)))
+```
+
+Plotting the heatmap.
+
+```{r}
+samplePoisDistMatrix <- as.matrix( poisd$dd )
+rownames(samplePoisDistMatrix) <- paste( dds$dex, dds$cell, sep=" - " )
+colnames(samplePoisDistMatrix) <- NULL
+pheatmap(samplePoisDistMatrix,
+         clustering_distance_rows = poisd$dd,
+         clustering_distance_cols = poisd$dd,
+         col = colors)
+```
+
+### PCA plot
+
+Principal components analysis plots is shortened to PCA plots. 
+The data is plotted onto a 2D plane such that the points are spread out in two directions. This explains most differences. 
+
+PC1 separates the data the most and PC2 separates the data the second most. 
+
+```{r}
+plotPCA(vsd, intgroup = c("dex", "cell"))
+```
+
+PCA plot using VST
+The two terms specified by "intgroup" are the interesting froups for labeling the samples. This tells the function to use them to choose colors. 
+
+```{r}
+pcaData <- plotPCA(vsd, intgroup = c( "dex", "cell"), returnData = TRUE)
+pcaData
+percentVar <- round(100 * attr(pcaData, "percentVar"))
+```
+
+Creating a plot that specifies the color of the points which reflect dex treatment. The shape reflects the cell line. 
+
+```{r}
+ggplot(pcaData, aes(x = PC1, y = PC2, color = dex, shape = cell)) +
+  geom_point(size =3) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  coord_fixed() +
+  ggtitle("PCA with VST data")
+```
+
+### PCA plot using Genralized PCA
+
+Another technique to reduce dimensions is not normally distributed is GLM-PCA. This takes inpit from the count matrix and the number of latent dimensins to fit. 
+
+```{r}
+library("glmpca")
+gpca <- glmpca(counts(dds), L=2)
+gpca.dat <- gpca$factors
+gpca.dat$dex <- dds$dex
+gpca.dat$cell <- dds$cell
+```
+
+Avoiding normalization.
+
+```{r}
+ggplot(gpca.dat, aes(x = dim1, y = dim2, color = dex, shape = cell)) +
+  geom_point(size =3) + coord_fixed() + ggtitle("glmpca - Generalized PCA")
+```
+
+### MDS plot
+
+Only use when you have matrix distances. 
+
+```{r}
+mds <- as.data.frame(colData(vsd))  %>%
+         cbind(cmdscale(sampleDistMatrix))
+ggplot(mds, aes(x = `1`, y = `2`, color = dex, shape = cell)) +
+  geom_point(size = 3) + coord_fixed() + ggtitle("MDS with VST data")
+```
+
+Same plot as above, but here the Poisson Distance is used. 
+
+```{r}
+mdsPois <- as.data.frame(colData(dds)) %>%
+   cbind(cmdscale(samplePoisDistMatrix))
+ggplot(mdsPois, aes(x = `1`, y = `2`, color = dex, shape = cell)) +
+  geom_point(size = 3) + coord_fixed() + ggtitle("MDS with PoissonDistances")
+```
+

@@ -1,0 +1,10 @@
+---
+title: "geneological family tree"
+author: "Ayushi Chotai"
+date: "3/22/2020"
+output: html_document
+---
+
+This is my family tree going back 4 generations. My parents doen't know much about their grandparents so the most information I could get about them was their names. 
+
+![Chotai family tree](images/ayushi chotai family tree.png)
