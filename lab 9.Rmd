@@ -3,13 +3,6 @@ title: "lab 9"
 author: "Ayushi Chotai"
 date: "3/25/2020"
 output: html_document
----
-
----
-title: "lab 9"
-author: "Ayushi Chotai"
-date: "3/25/2020"
-output: html_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -145,7 +138,7 @@ ggplot() +
 
 
 ```{r}
-head(time_series_deaths_long2)
+head(time_series_deaths_long)
 ```
 
 ```{r}
