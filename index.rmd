@@ -11,7 +11,7 @@ This is Ayushi's website!
 * [This is lab3](lab3_ayushichotai.html)
 * [This is lab4](lab4_ayushichotai.html)
 * [This is lab5](lab5_ayushichotai.html)
-
+* [This is lab9](lab9.html)
 Application written in R [@RCoreTeam] using the Shiny framework [@Chang2015].
 
 # REFERENCES
