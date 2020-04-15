@@ -14,6 +14,7 @@ This is Ayushi's website!
 * [This is lab7](lab-7.html)
 * [This is lab8](geneological-family-tree.html)
 * [This is lab9](lab-9.html)
+* [This is lab10](lab-10.html)
 
 Application written in R [@RCoreTeam] using the Shiny framework [@Chang2015].
 
