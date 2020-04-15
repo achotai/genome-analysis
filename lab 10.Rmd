@@ -28,6 +28,8 @@ library(av)
 library(plotly)
 ```
 
+
+This is the map of the world showing the confirmed cases around the world on 04/01/2020.
 ```{r}
 daily_report <- read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-01-2020.csv")) %>% 
   rename(Long = "Long_") 
@@ -42,6 +44,7 @@ ggplot(daily_report, aes(x = Long, y = Lat, size = Confirmed/1000)) +
     coord_fixed(ratio=1.5)
 ```
 
+This map shows the number of confirmed deaths as per the daily report for 04/01/2020.
 ```{r}
 daily_report <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-01-2020.csv")) %>% 
   rename(Long = "Long_") %>% 
@@ -76,6 +79,8 @@ ggplot(daily_report, aes(x = Long, y = Lat, size = Deaths)) +
     coord_fixed(ratio=1.5)
 ```
 
+
+US map of confirmed deaths on 04/01/2020.
 ```{r}
 daily_report <- read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-01-2020.csv")) %>% 
   rename(Long = "Long_") %>% 
@@ -96,6 +101,7 @@ ggplot(data = us, mapping = aes(x = long, y = lat, group = group)) +
   labs(title = "COVID-19 Confirmed Deaths in the US'")
 ```
 
+Map of number of confirmed cases in California.
 ```{r}
 daily_report <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-01-2020.csv")) %>% 
   rename(Long = "Long_") %>% 
@@ -117,13 +123,14 @@ ggplot(data = ma_county, mapping = aes(x = long, y = lat, group = group)) +
     scale_fill_gradientn(colours = 
                          wes_palette("Zissou1", 100, type = "continuous"),
                          trans = "log10") +
-  labs(title = "COVID-19 Confirmed Cases in California'")
+  labs(title = "COVID-19 Confirmed Cases in California")
 ```
 
 ```{r}
 daily_report
 ```
 
+Interactive map of confirmed cases in California. 
 ```{r}
 ggplotly(
   ggplot(data = ma_county, mapping = aes(x = long, y = lat, group = group)) + 
@@ -188,6 +195,7 @@ time_series_long_joined_counts <- time_series_long_joined %>%
                names_to = "Report_Type", values_to = "Counts")
 ```
 
+Graph of countries with number of confirmed deaths.
 ```{r}
 data_time <- time_series_long_joined %>% 
     group_by(Country_Region,Date) %>% 
