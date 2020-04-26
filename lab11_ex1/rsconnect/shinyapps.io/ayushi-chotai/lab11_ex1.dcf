@@ -1,0 +1,12 @@
+name: lab11_ex1
+title: lab11_ex1
+username:
+account: ayushi-chotai
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2189401
+bundleId: 3067866
+url: https://ayushi-chotai.shinyapps.io/lab11_ex1/
+when: 1587922606.99827
+asMultiple: FALSE
+asStatic: FALSE

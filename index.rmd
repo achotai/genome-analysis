@@ -15,8 +15,16 @@ This is Ayushi's website!
 * [This is lab8](geneological-family-tree.html)
 * [This is lab9](lab-9.html)
 * [This is lab10](lab-10.html)
-* [This is lab11 and lab12](https://ayushi-chotai.shinyapps.io/lab11_lab12/)
+* This is lab11 and lab12
 
+  [This is exercise1](https://ayushi-chotai.shinyapps.io/lab11_ex1/)
+
+  [This is exercise2](https://ayushi-chotai.shinyapps.io/lab11_ex2/)
+
+  [This is exercise3](https://ayushi-chotai.shinyapps.io/lab11_ex3/)
+
+  [This is exercise4](https://ayushi-chotai.shinyapps.io/lab11_ex4/)
+  
 Application written in R [@RCoreTeam] using the Shiny framework [@Chang2015].
 
 # REFERENCES
