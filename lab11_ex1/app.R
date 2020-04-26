@@ -105,7 +105,7 @@ server <- function(input, output) {
       group_by(Country_Region,Date) %>% 
       summarise_at(c("Confirmed", "Deaths", "Recovered"), sum) %>% 
       #Select Countries
-      filter(Country_Region %in% c("US","Spain","Italy","Germany","France"))
+      filter(Country_Region %in% c("US","Spain","Italy","China","India"))
     
     # Note that aes_strings was used to accept y input and needed to quote other variables
     ggplot(pick_country, aes_string(x = "Date",  y = input$select_type, color = "Country_Region")) + 

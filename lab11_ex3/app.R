@@ -65,7 +65,7 @@ last_date = max(global_time_series$Date, na.rm = TRUE)
 Report_Type3 = c("Confirmed", "Deaths", "Recovered")
 
 # Create list of countries
-Countries = c("Spain","US","Germany","Italy","France")
+Countries = c("US","Spain","Italy","China","India")
 
 # Define UI for application 
 ui <- fluidPage(
